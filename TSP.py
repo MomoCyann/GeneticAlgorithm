@@ -148,4 +148,5 @@ print(1/best_fit)
 for i in range(len(data)):
     plt.plot([data[best_chromo[i]][0],data[best_chromo[i+1]][0]],[data[best_chromo[i]][1],data[best_chromo[i+1]][1]])
     plt.scatter(data[best_chromo[i]][0],data[best_chromo[i]][1],color='b')
+
 plt.show()
