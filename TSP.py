@@ -2,7 +2,13 @@ import math
 import random
 import copy
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
+#读取tsp
+# dataframe = pd.read_csv("./a280.tsp",sep=" ",header=None,error_bad_lines=False)
+# v = dataframe.iloc[5:,1:3]
+# data= np.array(v)
 #设置参数
 # min_x = 0         #变量范围
 # max_x = 10
