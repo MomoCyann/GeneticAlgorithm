@@ -1,6 +1,7 @@
 import math
 import random
 import copy
+import matplotlib.pyplot as plt
 
 #设置参数
 # min_x = 0         #变量范围
@@ -35,8 +36,10 @@ def initialize():
         for j in range(city_num):
             temp.append(j)
         random.shuffle(temp)
+        start = temp[0]
+        temp.append(start)
         #向种群加入打乱顺序的整数，表示随机顺序。 
-        for k in range(city_num):      
+        for k in range(len(temp)):
             popu[i].append(temp[k]) 
     return popu
 
@@ -84,11 +87,13 @@ def choose():
 #突变 - 交换位置
 def mutation():
     for i in range(len(popu)):
-        for j in range(len(popu[i])):
+        for j in range(len(popu[i])-1):
             roll = random.uniform(0,1)
             if roll <= p_mut:
-                tar = random.randrange(len(popu[i]))
-                popu[i][j],popu[i][tar] = popu[i][tar],popu[i][j]        #有可能跟自己交换，等于不交换，实际降低了突变几率
+                tar = random.randrange(len(popu[i])-1)
+                popu[i][j],popu[i][tar] = popu[i][tar],popu[i][j]        #有可能跟自己交换，等于不交换，实际降低了突变几率，但交换范围，最后一个不参与，因为是起点
+                #最后要保证首尾相同
+                popu[i][-1]=popu[i][0]
     return popu
 
 #重组 - 某段基因保持顺序加入另一个染色体某一段形成新染色体
@@ -97,8 +102,8 @@ def crossover():
         roll = random.uniform(0,1)
         if roll <= p_cro:
             newchromo = []
-            start = random.randrange(len(popu[i]))
-            end = random.randrange(start,len(popu[i]))
+            start = random.randrange(len(popu[i])-1)
+            end = random.randrange(start,len(popu[i])-1)
             part = popu[i][start:end]
             tar = random.randrange(len(popu))
             #防止自交
@@ -112,6 +117,9 @@ def crossover():
                 if j not in part:
                     newchromo.append(j)
                     count += 1
+            if newchromo[0] != newchromo[-1]:
+                point = newchromo[0]
+                newchromo.append(point)
             popu.append(newchromo)
         else:
             continue
@@ -135,3 +143,9 @@ for i in range(gen_num):
     
 print(best_chromo)
 print(1/best_fit)
+
+#可视化
+for i in range(len(data)):
+    plt.plot([data[best_chromo[i]][0],data[best_chromo[i+1]][0]],[data[best_chromo[i]][1],data[best_chromo[i+1]][1]])
+    plt.scatter(data[best_chromo[i]][0],data[best_chromo[i]][1],color='b')
+plt.show()
