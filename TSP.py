@@ -114,7 +114,7 @@ def crossover():
                 if count == start:
                     newchromo.extend(part)
                     count += 1 
-                if j not in part:
+                if j not in part and j not in newchromo:
                     newchromo.append(j)
                     count += 1
             if newchromo[0] != newchromo[-1]:
@@ -145,8 +145,8 @@ print(best_chromo)
 print(1/best_fit)
 
 #可视化
-for i in range(len(data)):
-    plt.plot([data[best_chromo[i]][0],data[best_chromo[i+1]][0]],[data[best_chromo[i]][1],data[best_chromo[i+1]][1]])
-    plt.scatter(data[best_chromo[i]][0],data[best_chromo[i]][1],color='b')
-
-plt.show()
+# for i in range(len(data)):
+#     plt.plot([data[best_chromo[i]][0],data[best_chromo[i+1]][0]],[data[best_chromo[i]][1],data[best_chromo[i+1]][1]])
+#     plt.scatter(data[best_chromo[i]][0],data[best_chromo[i]][1],color='b')
+#
+# plt.show()
