@@ -6,19 +6,24 @@ import pandas as pd
 import numpy as np
 
 #读取tsp
-# dataframe = pd.read_csv("./a280.tsp",sep=" ",header=None,error_bad_lines=False)
-# v = dataframe.iloc[5:,1:3]
-# data= np.array(v)
+import tsplib95
+dataframe = tsplib95.load('berlin52.tsp')
+data = list(dataframe.node_coords.values())
+#浮点数变整数
+for i in range(len(data)):
+    for j in range(len(data[i])):
+        data[i][j] = int(data[i][j])
+print(data)
 #设置参数
 # min_x = 0         #变量范围
 # max_x = 10
-gen_num = 20   #迭代次数
-popu_num = 200    #种群大小
+gen_num = 1000   #迭代次数
+popu_num = 2000    #种群大小
 p_mut = 0.05      #突变概率
 #mut_wet = 0.5     #突变权重 
 p_cro = 0.5      #重组概率
-data = [[10,75],[36,9],[91,78],[54,53],[8,51],[78,51]]
-city_num = 6     #染色体长度
+#data = [[10,75],[36,9],[91,78],[54,53],[8,51],[78,51]]
+city_num = len(data)     #染色体长度
 
 #创建空数组(种群)
 popu = []
