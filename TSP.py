@@ -4,6 +4,10 @@ import copy
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import os
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 #读取tsp
 # import tsplib95
@@ -15,15 +19,15 @@ import numpy as np
 #         data[i][j] = int(data[i][j])
 # print(data)
 
+data = [[10,75],[36,9],[91,78],[54,53],[8,51],[78,51]]
 #设置参数
 # min_x = 0         #变量范围
 # max_x = 10
-gen_num = 100   #迭代次数
-popu_num = 200    #种群大小
+gen_num = 200   #迭代次数
+popu_num = 100    #种群大小
 p_mut = 0.05      #突变概率
 #mut_wet = 0.5     #突变权重 
 p_cro = 0.5      #重组概率
-data = [[10,75],[36,9],[91,78],[54,53],[8,51],[78,51]]
 city_num = len(data)     #染色体长度
 
 #创建空数组(种群)
@@ -157,8 +161,8 @@ print(best_chromo)
 print(1/best_fit)
 
 #可视化
-# for i in range(len(data)):
-#     plt.plot([data[best_chromo[i]][0],data[best_chromo[i+1]][0]],[data[best_chromo[i]][1],data[best_chromo[i+1]][1]])
-#     plt.scatter(data[best_chromo[i]][0],data[best_chromo[i]][1],color='b')
-#
-# plt.show()
+for i in range(len(data)):
+    plt.plot([data[best_chromo[i]][0],data[best_chromo[i+1]][0]],[data[best_chromo[i]][1],data[best_chromo[i+1]][1]])
+    plt.scatter(data[best_chromo[i]][0],data[best_chromo[i]][1],color='b')
+
+plt.show()

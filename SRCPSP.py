@@ -49,16 +49,10 @@ src = [
     [0,2],
     [0,0]
 ]
-suc_proc=[1]
-wat_proc=[]
-now_proc=[]
-r1=3
-r2=4
-time = 0
 #设置参数
 # min_x = 0         #变量范围
 # max_x = 10
-gen_num = 20   #迭代次数
+gen_num = 10   #迭代次数
 popu_num = 10    #种群大小
 p_mut = 0.05      #突变概率
 #mut_wet = 0.5     #突变权重
@@ -75,7 +69,7 @@ fitness = []
 #选择概率
 p = []
 #答案
-best_fit = 0
+best_fit = 999
 best_chromo = 0
 #初始化
 def initialize():
@@ -92,54 +86,115 @@ def initialize():
         for k in range(proc_num):
             popu[i].append(temp[k])
     return popu
-popu = initialize()
-print(popu)
 
 #适应度计算
-#def fitnessfunction():
-fitness.clear()
-starttime=0
-endtime=0
 
-for i in range(len(popu)):
-    for j in popu[i]:#每个工序
-        if j == 1:
-            suc_proc.append(j)
-            continue
-        for k,v in data.items():
-            #判断紧前工序
-            if j in v:
-                if k not in suc_proc:#紧前工序还没完成
-                    wat_proc.append(j)
-                    continue
-                else:
-                    if j in wat_proc:#有可能存在另一个已完成的紧前工序
-                        wat_proc.remove(j)
-                        now_proc.append(j)
-                    now_proc.append(j)
-                    break
-        if now_proc:
-            if r1 > src[j-1][0] and r2 > src[j-1][1]: #判断资源
-                starttime = time
-                endtime = starttime + duration[j]
-                r1 -= src[j-1][0]
-                r2 -= src[j-1][1]
+def fitnessfunction():
+    fitness.clear()
+    wat_proc = []
+    wat_proc_tmp = []
+    rdy_proc = []
+    rdy_proc_tmp = []
+    now_proc = []
+    starttime = []
+    endtime = []
+    endtime_tmp = []
+    for i in range(len(popu)):
+        suc_proc = [1]
+        endtime.clear()
+        wat_proc.clear()
+        rdy_proc.clear()
+        now_proc.clear()
+        starttime.clear()
+        r1 = 3
+        r2 = 4
+        time = 0
+        finaltime = 0
+        for j in popu[i]:#每个工序
+            if j == 1:
                 continue
-            else:
-                time+=1
+            for k,v in data.items():
+                #判断紧前工序
+                if j in v:
+                    if k not in suc_proc:#紧前工序还没完成
+                        if j not in wat_proc:   #工序进入  “待进行”里一次就行了
+                            wat_proc.append(j)
+                            continue
+                        else:
+                            continue
+                    else:
+                        if j in wat_proc:#有可能存在另一个已完成的紧前工序
+                            rdy_proc.append(j)
+                            wat_proc.remove(j)
+                        rdy_proc.append(j)
+                        break
+            while rdy_proc:
+                # 先判断“待进行”是否为空，比如 62374   6一开始不能进行，一开始会被抛入待进行，然后遍历2，会被加入rdy_proc，此时while判定成功，判断资源，资源够
+                # 之后记录时间，加入now 直接break,就开始遍历3了，3一看紧前完成，进入“准备中”，进入while，遍历wat，6并不能加入，往下走
+                # 3也能进行资源也够，此时now就有2和3，while rdy 空了 下一个
+                # 然后是7 紧前未完成 加入wat rdy没有 （time=0
+                # 4，紧前完成 加入rdy while里面，检查wat 67的紧前均未完成
+                #4资源不够 time+1   endtime = [[2,3],[3,4]]
+                #一直到time=3 2完成了，资源变成2，4
+                wat_proc_tmp.clear()
+                wat_proc_tmp = list(wat_proc)
+                for n in wat_proc_tmp:
+                    for o, p in data.items():
+                        # 判断紧前工序
+                        if n in p:
+                            if o not in suc_proc:  # 紧前工序还没完成
+                                continue
+                            else:
+                                wat_proc.remove(n)
+                                rdy_proc.append(n)
+                                break
+                    # if r1 >= src[n - 1][0] and r2 >= src[n - 1][1]:
+                    #     # 判定足够，记录时间
+                    #     starttime.append([n, time])
+                    #     endtime.append([n, starttime + duration[n]])
+                    #     r1 -= src[n - 1][0]
+                    #     r2 -= src[n - 1][1]
+                    #     wat_proc.remove(n)
+                #这里是工序前序判定完成，本工序可以进行，所以进入了“rdy”，逐一判断“rdy”的工序 资源够不够
+                rdy_proc_tmp.clear()
+                rdy_proc_tmp = list(rdy_proc)
+                for g in rdy_proc_tmp:
+                    if r1 >= src[g-1][0] and r2 >= src[g-1][1]:
+                        #判定足够，记录时间，加入now
+                        starttime.append([g,time])
+                        endtime.append([g,time + duration[g-1]])
+                        if finaltime < time + duration[g-1]:
+                            finaltime = time + duration[g-1]
+                        r1 -= src[g-1][0]
+                        r2 -= src[g-1][1]
+                        rdy_proc.remove(g)
+                        now_proc.append(g)
+                        break
+                    else:
+                        #资源不够，只能推迟时间单位，等其他工序完成，资源回复
+                        mark = 0
+                        while mark == 0:
+                            time+=1
+                            #时间推进之后检查now是否有工序已经完成
+                            endtime_tmp.clear()
+                            endtime_tmp = list(endtime)
+                            for k in range(len(endtime)):
+                                if time == endtime_tmp[k][1]:
+                                    for l in now_proc:
+                                        if l == endtime_tmp[k][0]: #找到满足结束时间的工序号
+                                            now_proc.remove(l)
+                                            suc_proc.append(l)
+                                            r1 += src[l-1][0]
+                                            r2 += src[l-1][1] #资源回复
+                                            endtime.pop(endtime.index([l,endtime_tmp[k][1]]))
+                                            mark = 1
+                                            #确保任务完成了 才去看其他的
 
-        else:
-            continue
-
-
-
-
-
-
-
-
-    #return fitness
-
+                        #这里应该把能完成的全部处理完了
+                        #如果时间不满足，会继续判定while，now_proc是否为空，只要不为空，就会再次进行，判断资源，
+                #如果while不满足，说明now_proc为空
+        fitness.append(finaltime)
+    return fitness
 
 #选择
 def choose():
@@ -196,7 +251,7 @@ def crossover():
                 if count == start:
                     newchromo.extend(part)
                     count += 1
-                if j not in part and j not in newchromo:
+                if j not in part:
                     newchromo.append(j)
                     count += 1
             popu.append(newchromo)
@@ -204,6 +259,24 @@ def crossover():
             continue
     return popu
 
+# 主代码
+popu = initialize()
+for i in range(gen_num):
+    fitness = fitnessfunction()
+
+    # 答案的储存、更新
+    better_fit = min(fitness)
+    better_chromo = popu[fitness.index(min(fitness))]
+    if better_fit < best_fit:
+        best_fit = better_fit
+        best_chromo = better_chromo
+
+    popu = choose()
+    popu = mutation()
+    popu = crossover()
+
+print(best_chromo)
+print(best_fit)
 
 
 
