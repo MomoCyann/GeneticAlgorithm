@@ -1,4 +1,3 @@
-import math
 import random
 import copy
 #todo 1.随机产生种群
@@ -72,6 +71,8 @@ p = []
 best_fit = 999
 best_chromo = 0
 #初始化
+
+
 def initialize():
     #向空数组中加入不重复的随机数，表示顺序。
     for i in range(popu_num):
@@ -87,8 +88,8 @@ def initialize():
             popu[i].append(temp[k])
     return popu
 
-#适应度计算
 
+#适应度计算
 def fitnessfunction():
     fitness.clear()
     wat_proc = []
@@ -96,6 +97,7 @@ def fitnessfunction():
     rdy_proc = []
     rdy_proc_tmp = []
     now_proc = []
+    global starttime
     starttime = []
     endtime = []
     endtime_tmp = []
@@ -194,7 +196,9 @@ def fitnessfunction():
                         #如果时间不满足，会继续判定while，now_proc是否为空，只要不为空，就会再次进行，判断资源，
                 #如果while不满足，说明now_proc为空
         fitness.append(finaltime)
+        betterstarttime=starttime
     return fitness
+
 
 #选择
 def choose():
@@ -223,6 +227,7 @@ def choose():
             popu[i].append(popu_temp[i][j])
     return popu
 
+
 #突变 - 交换位置
 def mutation():
     for i in range(len(popu)):
@@ -232,6 +237,7 @@ def mutation():
                 tar = random.randrange(len(popu[i]))
                 popu[i][j],popu[i][tar] = popu[i][tar],popu[i][j]        #有可能跟自己交换，等于不交换，实际降低了突变几率，但交换范围，最后一个不参与，因为是起点
     return popu
+
 
 #重组 - 某段基因保持顺序加入另一个染色体某一段形成新染色体
 def crossover():
@@ -259,6 +265,7 @@ def crossover():
             continue
     return popu
 
+
 # 主代码
 popu = initialize()
 for i in range(gen_num):
@@ -277,6 +284,3 @@ for i in range(gen_num):
 
 print(best_chromo)
 print(best_fit)
-
-
-
